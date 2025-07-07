@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Hostel Leave App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script> 
+</head>
+<body class="font-inter bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div id="app-container" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <div id="login-section" class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Login to Your Portal</h1>
+
+            <div class="mb-4">
+                <label for="role-select" class="block text-gray-700 text-sm font-medium mb-2">Select Role:</label>
+                <select id="role-select" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="student">🧑‍🎓 Student</option>
+                    <option value="teacher">🧑‍🏫 Teacher</option>
+                    <option value="hod">👨‍💼 HOD</option>
+                    <option value="dean">🏛️ Dean</option>
+                </select>
+            </div>
+
+            <h2 id="role-title" class="text-2xl font-semibold text-gray-700 mb-4">Student Login</h2>
+
+            <div class="mb-4">
+                <input type="text" id="user-id" placeholder="Login ID" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-6">
+                <input type="password" id="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button id="login-button" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">Login</button>
+
+            <div id="message-box" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
+        </div>
+
+        <div id="student-page" class="hidden">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Welcome to Nmims Leave Application🧳!</h1>
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Leave Application Form</h2>
+
+            <div class="mb-4">
+                <label for="student-name" class="block text-gray-700 text-sm font-medium mb-2">Enter your full name:</label>
+                <input type="text" id="student-name" placeholder="Your name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="mb-4">
+                <label for="student-id-input" class="block text-gray-700 text-sm font-medium mb-2">Enter your student ID (11 digits):</label>
+                <input type="text" id="student-id-input" placeholder="Your 11-digit SAP ID" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" maxlength="11" minlength="11">
+                <p id="student-id-display" class="text-sm text-gray-500 mt-2 hidden"></p>
+                <p id="student-id-validation-message" class="text-sm text-red-600 mt-2 hidden"></p>
+            </div>
+
+            <div class="mb-4">
+                <label for="student-year" class="block text-gray-700 text-sm font-medium mb-2">Which year are you in (e.g., 1, 2, 3, 4)?</label>
+                <input type="text" id="student-year" placeholder="Year" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p id="year-validation-message" class="text-sm text-red-600 mt-2 hidden"></p>
+            </div>
+
+            <div class="mb-4">
+                <label for="student-attendance" class="block text-gray-700 text-sm font-medium mb-2">Enter your average attendance percentage?</label>
+                <input type="number" id="student-attendance" min="0" max="100" step="0.1" value="85.0" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p id="attendance-display" class="text-sm text-gray-500 mt-2">Your attendance is: <strong>85.00%</strong></p>
+                <p id="attendance-warning" class="text-sm text-orange-600 mt-2 hidden">Your attendance is below 80%. You might need to talk with your Mentor about this.</p>
+            </div>
+
+            <div class="mb-4">
+                <label for="student-email" class="block text-gray-700 text-sm font-medium mb-2">Your Email ID:</label>
+                <input type="email" id="student-email" placeholder="youremail@example.com" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="flex gap-4 mb-4">
+                <div class="flex items-center">
+                    <input type="checkbox" id="auth-leave" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                    <label for="auth-leave" class="ml-2 text-gray-700">Authorized Leave</label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="spec-leave" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                    <label for="spec-leave" class="ml-2 text-gray-700">Special Leave</label>
+                </div>
+            </div>
+            <p id="leave-type-message" class="text-sm text-red-600 mt-2 hidden">Please pick only one type of leave.</p>
+            <p id="leave-type-select-message" class="text-sm text-red-600 mt-2 hidden">Don't forget to select a leave type!</p>
+
+
+            <div class="mb-4">
+                <label for="leave-reason" class="block text-gray-700 text-sm font-medium mb-2">Why are you requesting leave?</label>
+                <textarea id="leave-reason" rows="4" placeholder="Enter your reason here" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <p id="reason-info" class="text-sm text-gray-500 mt-2 hidden">Your reason will be reviewed by your mentor.</p>
+                <p id="reason-warning" class="text-sm text-orange-600 mt-2 hidden">Please provide a reason for your leave.</p>
+            </div>
+
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Your Branch and Batch</h3>
+            <div class="mb-4">
+                <label for="student-branch" class="block text-gray-700 text-sm font-medium mb-2">Choose your Branch:</label>
+                <select id="student-branch" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Branch</option>
+                    <option value="BTECH CS">BTECH CS</option>
+                    <option value="BTECH CE">BTECH CE</option>
+                    <option value="BTECH AI-ML">BTECH AI-ML</option>
+                    <option value="BTECH IT">BTECH IT</option>
+                    <option value="MBA TECH CE">MBA TECH CE</option>
+                    <option value="B-PHARM">B-PHARM</option>
+                    <option value="TEXTILE">TEXTILE</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="student-batch" class="block text-gray-700 text-sm font-medium mb-2">Choose your Batch:</label>
+                <select id="student-batch" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
+                    <option value="">Select Batch</option>
+                    </select>
+                <p id="batch-display" class="text-sm text-gray-500 mt-2 hidden"></p>
+                <p id="batch-warning" class="text-sm text-orange-600 mt-2 hidden">Pick your branch to see your batch options.</p>
+            </div>
+
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">Your Mentor's Details</h3>
+            <div class="mb-4">
+                <label for="student-mentor" class="block text-gray-700 text-sm font-medium mb-2">Select Your Mentor:</label>
+                <select id="student-mentor" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Mentor</option>
+                    <option value="Dileep Kumar">Dileep Kumar</option>
+                    <option value="Bagal">Bagal</option>
+                    <option value="Sugam Shivare">Sugam Shivare</option>
+                    <option value="Rajshekhar Pothala">Rajshekhar Pothala</option>
+                    <option value="DJ">DJ</option>
+                    <option value="ASHOK PANIGRAHI">ASHOK PANIGRAHI</option>
+                    <option value="Sachin Bhandari">Sachin Bhandari</option>
+                    <option value="Rehan">Rehan</option>
+                    <option value="Suraj Patil">Suraj Patil</option>
+                </select>
+                <p id="mentor-verification-message" class="text-sm text-red-600 mt-2 hidden"></p>
+            </div>
+
+            <h3 class="text-xl font-semibold text-gray-700 mb-4">When are you applying for leave? 📅</h3>
+            <div class="mb-4">
+                <label for="start-date" class="block text-gray-700 text-sm font-medium mb-2">Leave From:</label>
+                <input type="date" id="start-date" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-4">
+                <label for="end-date" class="block text-gray-700 text-sm font-medium mb-2">Till:</label>
+                <input type="date" id="end-date" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p id="date-range-message" class="text-sm text-gray-500 mt-2 hidden"></p>
+                <p id="date-range-error" class="text-sm text-red-600 mt-2 hidden">The 'End' date must be after or on the 'From' date.</p>
+            </div>
+
+            <button id="submit-leave-request" class="w-full bg-green-600 text-white p-3 rounded-lg font-semibold hover:bg-green-700 transition duration-300 shadow-md mt-6">Submit My Leave Request</button>
+            <div id="form-submission-message" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
+
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Your Leave Request Status and Gate Pass</h2>
+            <p id="student-id-check-message" class="text-sm text-gray-500 mb-4">Enter your Student ID above to check your leave status and get your pass.</p>
+            <div id="leave-history-container" class="overflow-x-auto mb-6 hidden">
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Your Leave Request History:</h3>
+                <table id="leave-history-table" class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Start Date</th>
+                            <th class="py-3 px-6 text-left">End Date</th>
+                            <th class="py-3 px-6 text-left">Days</th>
+                            <th class="py-3 px-6 text-left">Reason</th>
+                            <th class="py-3 px-6 text-left">Status</th>
+                            <th class="py-3 px-6 text-left">Teacher</th>
+                            <th class="py-3 px-6 text-left">HOD</th>
+                            <th class="py-3 px-6 text-left">Dean</th>
+                            <th class="py-3 px-6 text-left">Teacher App.</th>
+                            <th class="py-3 px-6 text-left">HOD App.</th>
+                            <th class="py-3 px-6 text-left">Dean App.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-sm font-light" id="leave-history-table-body">
+                        </tbody>
+                </table>
+                <p id="no-requests-message" class="text-center text-gray-500 mt-4 hidden">No leave requests found for your Student ID. Submit one above.</p>
+            </div>
+
+            <div id="gate-pass-section" class="border border-green-300 bg-green-50 p-4 rounded-lg hidden">
+                <h3 class="text-xl font-semibold text-green-800 mb-4">Your Active Gate Pass:</h3>
+                <p id="gate-pass-message" class="text-green-700 mb-4"></p>
+                <div id="qr-code-display" class="flex justify-center mb-4">
+                    </div>
+                <button id="download-qr-button" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">Download Your Gate Pass QR Code</button>
+                <p id="qr-error-message" class="text-sm text-red-600 mt-2 hidden"></p>
+            </div>
+            <p id="no-active-pass-message" class="text-center text-gray-500 mt-4 hidden">No active or future approved leave requests found for your Student ID. Your previous passes have expired or none are pending.</p>
+
+
+            <button id="logout-button-student" class="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition duration-300 shadow-md mt-6">Logout</button>
+        </div>
+
+        <div id="teacher-page" class="hidden">
+            <h1 id="teacher-welcome-title" class="text-3xl font-bold text-gray-800 mb-6 text-center">Welcome to the Teacher Portal!</h1>
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Pending Leave Requests (Awaiting Your Review)</h2>
+            <div id="pending-teacher-requests-container" class="space-y-4 mb-6">
+                </div>
+            <p id="no-pending-teacher-requests" class="text-center text-gray-500 mt-4 hidden">No pending leave requests for you at the moment.</p>
+
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Your Reviewed Leave Requests History</h2>
+            <div id="reviewed-teacher-requests-container" class="overflow-x-auto mb-6">
+                <table id="reviewed-teacher-requests-table" class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Student Name</th>
+                            <th class="py-3 px-6 text-left">Student ID</th>
+                            <th class="py-3 px-6 text-left">Start Date</th>
+                            <th class="py-3 px-6 text-left">End Date</th>
+                            <th class="py-3 px-6 text-left">Status</th>
+                            <th class="py-3 px-6 text-left">Teacher App.</th>
+                            <th class="py-3 px-6 text-left">HOD App.</th>
+                            <th class="py-3 px-6 text-left">Dean App.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-sm font-light" id="reviewed-teacher-requests-table-body">
+                        </tbody>
+                </table>
+                <p id="no-reviewed-teacher-requests" class="text-center text-gray-500 mt-4 hidden">No reviewed leave requests found for you yet.</p>
+            </div>
+
+            <button id="logout-button-teacher" class="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition duration-300 shadow-md mt-6">Logout</button>
+        </div>
+
+        <div id="hod-page" class="hidden">
+            <h1 id="hod-welcome-title" class="text-3xl font-bold text-gray-800 mb-6 text-center">Welcome to the HOD Portal!</h1>
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Pending Leave Requests (Awaiting Your Review)</h2>
+            <div id="pending-hod-requests-container" class="space-y-4 mb-6">
+                </div>
+            <p id="no-pending-hod-requests" class="text-center text-gray-500 mt-4 hidden">No pending leave requests for you at the moment.</p>
+
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Your Reviewed Leave Requests History</h2>
+            <div id="reviewed-hod-requests-container" class="overflow-x-auto mb-6">
+                <table id="reviewed-hod-requests-table" class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Student Name</th>
+                            <th class="py-3 px-6 text-left">Student ID</th>
+                            <th class="py-3 px-6 text-left">Start Date</th>
+                            <th class="py-3 px-6 text-left">End Date</th>
+                            <th class="py-3 px-6 text-left">Status</th>
+                            <th class="py-3 px-6 text-left">Teacher App.</th>
+                            <th class="py-3 px-6 text-left">HOD App.</th>
+                            <th class="py-3 px-6 text-left">Dean App.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-sm font-light" id="reviewed-hod-requests-table-body">
+                        </tbody>
+                </table>
+                <p id="no-reviewed-hod-requests" class="text-center text-gray-500 mt-4 hidden">No approved or rejected leave requests found for you yet.</p>
+            </div>
+            <button id="logout-button-hod" class="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition duration-300 shadow-md mt-6">Logout</button>
+        </div>
+
+        <div id="dean-page" class="hidden">
+            <h1 id="dean-welcome-title" class="text-3xl font-bold text-gray-800 mb-6 text-center">Welcome to the Dean Portal!</h1>
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Pending Leave Requests (Awaiting Your Review)</h2>
+            <div id="pending-dean-requests-container" class="space-y-4 mb-6">
+                </div>
+            <p id="no-pending-dean-requests" class="text-center text-gray-500 mt-4 hidden">No pending leave requests for you at the moment.</p>
+
+            <hr class="my-6 border-t border-gray-300">
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Your Reviewed Leave Requests History</h2>
+            <div id="reviewed-dean-requests-container" class="overflow-x-auto mb-6">
+                <table id="reviewed-dean-requests-table" class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Student Name</th>
+                            <th class="py-3 px-6 text-left">Student ID</th>
+                            <th class="py-3 px-6 text-left">Start Date</th>
+                            <th class="py-3 px-6 text-left">End Date</th>
+                            <th class="py-3 px-6 text-left">Status</th>
+                            <th class="py-3 px-6 text-left">Teacher App.</th>
+                            <th class="py-3 px-6 text-left">HOD App.</th>
+                            <th class="py-3 px-6 text-left">Dean App.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-sm font-light" id="reviewed-dean-requests-table-body">
+                        </tbody>
+                </table>
+                <p id="no-reviewed-dean-requests" class="text-center text-gray-500 mt-4 hidden">No approved or rejected leave requests found for you yet.</p>
+            </div>
+            <button id="logout-button-dean" class="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition duration-300 shadow-md">Logout</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

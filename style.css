@@ -1,0 +1,58 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-image: url('https://images.shiksha.com/mediadata/images/1670521973phpnF1TE6.jpeg'); /* Replace with your image path */
+    background-size: cover; /* This makes the image cover the entire element */
+    background-position: center center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-attachment: fixed;
+}
+
+/* Ensure all elements use border-box for consistent sizing */
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+#app-container {
+    border-radius: 1rem;
+    padding: 2rem; /* Example padding */
+    background-color: rgba(255, 255, 255, 0.1); /* Slightly transparent white */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Light border for definition */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    backdrop-filter: blur(50px); /* Blurs the content behind the element */
+    -webkit-backdrop-filter: blur(10px); 
+}
+
+input[type="text"],
+input[type="password"],
+select {
+    border-radius: 0.5rem; /* Tailwind's rounded-lg */
+}
+
+/* Styling for buttons */
+button {
+    border-radius: 0.5rem; /* Tailwind's rounded-lg */
+}
+
+/* Message box styling */
+#message-box.success {
+    background-color: #d1fae5; /* Tailwind's bg-green-100 */
+    color: #065f46; /* Tailwind's text-green-800 */
+}
+
+#message-box.error {
+    background-color: #fee2e2; /* Tailwind's bg-red-100 */
+    color: #991b1b; /* Tailwind's text-red-800 */
+}
+
+#message-box.info {
+    background-color: #e0f2fe; /* Tailwind's bg-blue-100 */
+    color: #1e40af; /* Tailwind's text-blue-800 */
+}
