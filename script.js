@@ -26,13 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const studentNameInput = document.getElementById('student-name');
     const studentIdInput = document.getElementById('student-id-input');
     const studentIdDisplay = document.getElementById('student-id-display');
-    const studentIdValidationMessage = document.getElementById('student-id-validation-message'); // New element for ID validation
+    const studentIdValidationMessage = document.getElementById('student-id-validation-message');
     const studentYearInput = document.getElementById('student-year');
     const yearValidationMessage = document.getElementById('year-validation-message');
     const studentAttendanceInput = document.getElementById('student-attendance');
     const attendanceDisplay = document.getElementById('attendance-display');
     const attendanceWarning = document.getElementById('attendance-warning');
-    const studentEmailInput = document.getElementById('student-email');
+    const parentEmailInput = document.getElementById('parent-email');
+    const parentEmailValidationMessage = document.getElementById('parent-email-validation-message');
+    const parentContactInput = document.getElementById('parent-contact');
+    const parentContactValidationMessage = document.getElementById('parent-contact-validation-message');
+
     const authLeaveCheckbox = document.getElementById('auth-leave');
     const specLeaveCheckbox = document.getElementById('spec-leave');
     const leaveTypeMessage = document.getElementById('leave-type-message');
@@ -64,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadQrButton = document.getElementById('download-qr-button');
     const qrErrorMessage = document.getElementById('qr-error-message');
     const noActivePassMessage = document.getElementById('no-active-pass-message');
+    const qrDownloadWarning = document.getElementById('qr-download-warning'); // NEW: QR Download Warning
 
     // --- DOM Elements (Teacher Page) ---
     const teacherWelcomeTitle = document.getElementById('teacher-welcome-title');
@@ -85,6 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const noPendingDeanRequests = document.getElementById('no-pending-dean-requests');
     const reviewedDeanRequestsTableBody = document.getElementById('reviewed-dean-requests-table-body');
     const noReviewedDeanRequests = document.getElementById('no-reviewed-dean-requests');
+
+    // --- Custom Logout Confirmation Modal Elements ---
+    const logoutConfirmModal = document.getElementById('logout-confirm-modal');
+    const confirmLogoutYesButton = document.getElementById('confirm-logout-yes');
+    const confirmLogoutNoButton = document.getElementById('confirm-logout-no');
 
 
     // --- User Data (Simulated - In a real app, this would come from a backend API) ---
@@ -136,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStudentId = null; // Stores the student ID manually entered by the student on their page
 
     // --- Simulated Database (In a real app, this would be handled by a backend) ---
-    // This array will hold all leave requests. In a real app, this would be fetched from a database.
+    // This array will hold all leave requests. Data will be lost on page refresh.
     let LEAVE_REQUESTS = [];
 
     // --- Helper Functions ---
@@ -152,6 +162,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideMessage(element) {
         element.classList.add('hidden');
         element.textContent = '';
+    }
+
+    // Function to show the custom logout confirmation modal
+    function showLogoutConfirmModal() {
+        logoutConfirmModal.classList.remove('hidden');
+    }
+
+    // Function to hide the custom logout confirmation modal
+    function hideLogoutConfirmModal() {
+        logoutConfirmModal.classList.add('hidden');
     }
 
     function updateRoleTitle() {
@@ -246,8 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(messageBox, `Invalid ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)} ID or Password. Please try again.`, "error");
         }
     }
-    // Function to handle logout
-    function handleLogout() {
+    
+    // Function to perform logout actions after confirmation
+    function performLogout() {
         loggedInAs = null;
         userName = null;
         currentStudentId = null; // Clear student ID on logout
@@ -268,12 +289,16 @@ document.addEventListener('DOMContentLoaded', () => {
         studentIdInput.value = '';
         studentIdDisplay.classList.add('hidden');
         hideMessage(studentIdValidationMessage); // Hide ID validation message
-        studentYearInput.value = '';
+        studentYearInput.value = ''; // Reset dropdown to default
         hideMessage(yearValidationMessage);
         studentAttendanceInput.value = '85.0';
         attendanceDisplay.innerHTML = 'Your attendance is: <strong>85.00%</strong>';
         hideMessage(attendanceWarning);
-        studentEmailInput.value = '';
+        parentEmailInput.value = '';
+        hideMessage(parentEmailValidationMessage);
+        parentContactInput.value = '';
+        hideMessage(parentContactValidationMessage);
+
         authLeaveCheckbox.checked = false;
         specLeaveCheckbox.checked = false;
         hideMessage(leaveTypeMessage);
@@ -300,19 +325,15 @@ document.addEventListener('DOMContentLoaded', () => {
         noRequestsMessage.classList.add('hidden');
         noActivePassMessage.classList.add('hidden');
         studentIdCheckMessage.classList.remove('hidden'); // Show initial message
+        hideMessage(qrDownloadWarning); // NEW: Hide QR download warning on form reset
     }
 
 
-    // Validates student year input
+    // Validates student year input (now for a select dropdown)
     function validateStudentYear() {
         const year = studentYearInput.value.trim();
         if (year === '') {
-            showMessage(yearValidationMessage, "Please enter your academic year.", "info");
-            return false;
-        }
-        const yearInt = parseInt(year);
-        if (isNaN(yearInt) || yearInt < 1 || yearInt > 4) {
-            showMessage(yearValidationMessage, "Enter a valid number for the year (1-4)!", "error");
+            showMessage(yearValidationMessage, "Please select your academic year.", "error"); // Changed message
             return false;
         }
         hideMessage(yearValidationMessage);
@@ -329,6 +350,29 @@ document.addEventListener('DOMContentLoaded', () => {
             hideMessage(attendanceWarning);
         }
     }
+
+    // NEW FUNCTION: Validate Parent's Email
+    function validateParentEmail() {
+        const email = parentEmailInput.value.trim();
+        hideMessage(parentEmailValidationMessage);
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showMessage(parentEmailValidationMessage, "Please enter a valid parent's email address.", "error");
+            return false;
+        }
+        return true;
+    }
+
+    // NEW FUNCTION: Validate Parent's Contact Number
+    function validateParentContact() {
+        const contact = parentContactInput.value.trim();
+        hideMessage(parentContactValidationMessage);
+        if (!contact || !/^\d{10}$/.test(contact)) {
+            showMessage(parentContactValidationMessage, "Please enter a valid 10-digit parent's contact number.", "error");
+            return false;
+        }
+        return true;
+    }
+
 
     // Validates leave type selection
     function validateLeaveType() {
@@ -479,9 +523,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Collect form data
         const s_name = studentNameInput.value.trim();
         const s_id = studentIdInput.value.trim();
-        const yr = studentYearInput.value.trim();
+        const yr = studentYearInput.value.trim(); // Get value from select
         const attn = parseFloat(studentAttendanceInput.value);
-        const email = studentEmailInput.value.trim();
+        const parent_email = parentEmailInput.value.trim();
+        const parent_contact = parentContactInput.value.trim();
+
         const auth_leave = authLeaveCheckbox.checked;
         const spec_leave = specLeaveCheckbox.checked;
         const reason = leaveReasonTextarea.value.trim();
@@ -505,9 +551,11 @@ document.addEventListener('DOMContentLoaded', () => {
             currentStudentId = s_id; 
         }
 
-        if (!validateStudentYear()) { isValid = false; }
+        if (!validateStudentYear()) { isValid = false; } // Validate dropdown
         if (isNaN(attn) || attn < 0 || attn > 100) { showMessage(formSubmissionMessage, "Please enter a valid attendance percentage.", "error"); isValid = false; }
-        if (!email || !email.includes('@')) { showMessage(formSubmissionMessage, "Please enter a valid email address.", "error"); isValid = false; }
+        if (!validateParentEmail()) { isValid = false; }
+        if (!validateParentContact()) { isValid = false; }
+
         if (!validateLeaveType()) { isValid = false; }
         if (!updateReasonStatus()) { isValid = false; }
         if (!sel_branch) { showMessage(formSubmissionMessage, "Please select your branch.", "error"); isValid = false; }
@@ -548,7 +596,8 @@ document.addEventListener('DOMContentLoaded', () => {
             student_id: s_id,
             branch: sel_branch,
             batch: sel_batch,
-            email: email,
+            parent_email: parent_email,
+            parent_contact: parent_contact,
             leave_days: dateValidation.numDays,
             start_date: s_date,
             end_date: e_date,
@@ -559,7 +608,8 @@ document.addEventListener('DOMContentLoaded', () => {
             hod_approved: false,
             dean_approved: false,
             status: LEAVE_STATUS_PENDING,
-            qr_code_data: null // Will be generated on approval
+            qr_code_data: null,
+            timestamp: Date.now() // Add timestamp for ordering
         };
 
         LEAVE_REQUESTS.push(newRequest); // Add to simulated database
@@ -580,6 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hideMessage(noActivePassMessage);
         gatePassSection.classList.add('hidden');
         studentIdCheckMessage.classList.add('hidden'); // Hide initial prompt
+        hideMessage(qrDownloadWarning); // NEW: Hide QR download warning initially
 
         if (!studentId || studentId.length !== 11 || !/^\d+$/.test(studentId)) {
             showMessage(studentIdCheckMessage, "Enter your 11-digit Student ID above to check your leave status and get your pass.", "info");
@@ -597,6 +648,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         leaveHistoryContainer.classList.remove('hidden');
+        // Sort requests by timestamp (most recent first) for display
+        studentRequests.sort((a, b) => b.timestamp - a.timestamp);
+
         studentRequests.forEach(req => {
             const row = leaveHistoryTableBody.insertRow();
             row.className = 'border-b border-gray-200 hover:bg-gray-100';
@@ -640,6 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.H // Error correction level
                 });
+                showMessage(qrDownloadWarning, "DOWNLOAD YOUR QR CODE ON DEVICE ONCE IT IS SEEN, IT MAY DISAPPEAR.", "warning"); // NEW: Show warning
 
                 // For downloading, we need to extract the canvas data
                 downloadQrButton.onclick = () => {
@@ -660,11 +715,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 qrCodeDisplay.innerHTML = '<p class="text-gray-600">QR Code data not available.</p>';
                 showMessage(qrErrorMessage, "QR Code could not be generated as data is missing.", "error");
                 downloadQrButton.onclick = null; // Disable download if no QR
+                hideMessage(qrDownloadWarning); // NEW: Hide warning if no QR
             }
             // --- END QR CODE GENERATION ---
 
         } else {
             showMessage(noActivePassMessage, "No active or future approved leave requests found for your Student ID. Your previous passes have expired or none are pending.", "info");
+            hideMessage(qrDownloadWarning); // NEW: Hide warning if no active pass
         }
     }
 
@@ -714,6 +771,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>Requested Teacher:</strong> ${req.teacher}</p>
                     <p><strong>Assigned HOD:</strong> ${req.hod_assigned}</p>
                     <p><strong>Attendance:</strong> ${req.attendance}%</p>
+                    <p><strong>Parent's Email:</strong> ${req.parent_email}</p>
+                    <p><strong>Parent's Contact:</strong> ${req.parent_contact}</p>
                     <div class="flex gap-4 mt-4">
                         <button id="teacher-approve-${originalIndex}" class="flex-1 bg-green-600 text-white p-2 rounded-lg font-semibold hover:bg-green-700 transition duration-300">✅ Approve</button>
                         <button id="teacher-reject-${originalIndex}" class="flex-1 bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition duration-300">❌ Reject</button>
@@ -770,6 +829,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="py-3 px-6 text-left whitespace-nowrap">${req.start_date}</td>
                     <td class="py-3 px-6 text-left whitespace-nowrap">${req.end_date}</td>
                     <td class="py-3 px-6 text-left">${req.status}</td>
+                    <td class="py-3 px-6 text-left">${req.teacher}</td>
+                    <td class="py-3 px-6 text-left">${req.hod_assigned}</td>
+                    <td class="py-3 px-6 text-left">${req.dean_assigned || 'N/A'}</td>
                     <td class="py-3 px-6 text-left">${req.teacher_approved ? 'Yes' : 'No'}</td>
                     <td class="py-3 px-6 text-left">${req.hod_approved ? 'Yes' : 'No'}</td>
                     <td class="py-3 px-6 text-left">${req.dean_approved ? 'Yes' : 'No'}</td>
@@ -819,6 +881,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>Teacher:</strong> ${req.teacher} (Approved: ${req.teacher_approved ? 'Yes' : 'No'})</p>
                     <p><strong>Assigned HOD:</strong> ${req.hod_assigned}</p>
                     <p><strong>Attendance:</strong> ${req.attendance}%</p>
+                    <p><strong>Parent's Email:</strong> ${req.parent_email}</p>
+                    <p><strong>Parent's Contact:</strong> ${req.parent_contact}</p>
                     <div class="flex gap-4 mt-4">
                         <button id="hod-approve-${originalIndex}" class="flex-1 bg-green-600 text-white p-2 rounded-lg font-semibold hover:bg-green-700 transition duration-300">✅ Approve</button>
                         <button id="hod-reject-${originalIndex}" class="flex-1 bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition duration-300">❌ Reject</button>
@@ -832,7 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (req.leave_days <= 3) {
                         newStatus = LEAVE_STATUS_GRANTED;
                         // Simulate QR code data generation for granted requests
-                        LEAVE_REQUESTS[originalIndex].qr_code_data = `LEAVE_GRANTED_ID:${req.student_id}|NAME:${req.student_name}|FROM:${req.start_date}|TO:${req.end_date}|TEACHER_APP:YES|HOD_APP:YES|TS:${Date.now()}`;
+                        LEAVE_REQUESTS[originalIndex].qr_code_data = `LEAVE_GRANTED_ID:${req.student_id}|NAME:${req.student_name}|FROM:${req.start_date}|TO:${req.end_date}|TEACHER_APP:YES|HOD_APP:YES|PARENT_EMAIL:${req.parent_email}|PARENT_CONTACT:${req.parent_contact}|TS:${Date.now()}`;
                     } else {
                         // If leave days > 3, it goes to Dean
                         newStatus = LEAVE_STATUS_HOD_APPROVED; // Status indicates HOD approved, now awaiting Dean
@@ -841,8 +905,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (simulatedUpdateLeaveRequest(originalIndex, "hod_approved", true, newStatus)) {
                         // Add dean_assigned to the request if it's going to dean
                         if (newStatus === LEAVE_STATUS_HOD_APPROVED) {
-                             LEAVE_REQUESTS[originalIndex].dean_assigned = USERS.dean.name;
-                             showMessage(messageBox, `HOD approval recorded for Student ID: ${req.student_id}. Request now awaiting Dean approval as leave is for ${req.leave_days} days.`, "success");
+                            LEAVE_REQUESTS[originalIndex].dean_assigned = USERS.dean.name;
+                            showMessage(messageBox, `HOD approval recorded for Student ID: ${req.student_id}. Request now awaiting Dean approval as leave is for ${req.leave_days} days.`, "success");
                         } else {
                             showMessage(messageBox, `HOD approval recorded for Student ID: ${req.student_id}. Leave fully GRANTED!`, "success");
                         }
@@ -891,6 +955,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="py-3 px-6 text-left whitespace-nowrap">${req.start_date}</td>
                     <td class="py-3 px-6 text-left whitespace-nowrap">${req.end_date}</td>
                     <td class="py-3 px-6 text-left">${req.status}</td>
+                    <td class="py-3 px-6 text-left">${req.teacher}</td>
+                    <td class="py-3 px-6 text-left">${req.hod_assigned}</td>
+                    <td class="py-3 px-6 text-left">${req.dean_assigned || 'N/A'}</td>
                     <td class="py-3 px-6 text-left">${req.teacher_approved ? 'Yes' : 'No'}</td>
                     <td class="py-3 px-6 text-left">${req.hod_approved ? 'Yes' : 'No'}</td>
                     <td class="py-3 px-6 text-left">${req.dean_approved ? 'Yes' : 'No'}</td>
@@ -935,6 +1002,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>Teacher:</strong> ${req.teacher} (Approved: ${req.teacher_approved ? 'Yes' : 'No'})</p>
                     <p><strong>HOD:</strong> ${req.hod_assigned} (Approved: ${req.hod_approved ? 'Yes' : 'No'})</p>
                     <p><strong>Attendance:</strong> ${req.attendance}%</p>
+                    <p><strong>Parent's Email:</strong> ${req.parent_email}</p>
+                    <p><strong>Parent's Contact:</strong> ${req.parent_contact}</p>
                     <div class="flex gap-4 mt-4">
                         <button id="dean-approve-${originalIndex}" class="flex-1 bg-green-600 text-white p-2 rounded-lg font-semibold hover:bg-green-700 transition duration-300">✅ Approve</button>
                         <button id="dean-reject-${originalIndex}" class="flex-1 bg-red-600 text-white p-2 rounded-lg font-semibold hover:bg-red-700 transition duration-300">❌ Reject</button>
@@ -944,9 +1013,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Add event listeners
                 document.getElementById(`dean-approve-${originalIndex}`).addEventListener('click', () => {
+                    const qrData = `LEAVE_GRANTED_ID:${req.student_id}|NAME:${req.student_name}|FROM:${req.start_date}|TO:${req.end_date}|TEACHER_APP:YES|HOD_APP:YES|DEAN_APP:YES|PARENT_EMAIL:${req.parent_email}|PARENT_CONTACT:${req.parent_contact}|TS:${Date.now()}`;
                     if (simulatedUpdateLeaveRequest(originalIndex, "dean_approved", true, LEAVE_STATUS_GRANTED)) {
-                        // Simulate QR code data generation for granted requests
-                        LEAVE_REQUESTS[originalIndex].qr_code_data = `LEAVE_GRANTED_ID:${req.student_id}|NAME:${req.student_name}|FROM:${req.start_date}|TO:${req.end_date}|TEACHER_APP:YES|HOD_APP:YES|DEAN_APP:YES|TS:${Date.now()}`;
+                        LEAVE_REQUESTS[originalIndex].qr_code_data = qrData;
                         showMessage(messageBox, `Dean approval recorded for Student ID: ${req.student_id}. Leave fully GRANTED!`, "success");
                         dean_page(); // Re-render Dean page
                         if (loggedInAs === 'student' && currentStudentId === req.student_id) {
@@ -991,6 +1060,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="py-3 px-6 text-left whitespace-nowrap">${req.start_date}</td>
                     <td class="py-3 px-6 text-left whitespace-nowrap">${req.end_date}</td>
                     <td class="py-3 px-6 text-left">${req.status}</td>
+                    <td class="py-3 px-6 text-left">${req.teacher}</td>
+                    <td class="py-3 px-6 text-left">${req.hod_assigned}</td>
+                    <td class="py-3 px-6 text-left">${req.dean_assigned || 'N/A'}</td>
                     <td class="py-3 px-6 text-left">${req.teacher_approved ? 'Yes' : 'No'}</td>
                     <td class="py-3 px-6 text-left">${req.hod_approved ? 'Yes' : 'No'}</td>
                     <td class="py-3 px-6 text-left">${req.dean_approved ? 'Yes' : 'No'}</td>
@@ -1006,51 +1078,61 @@ document.addEventListener('DOMContentLoaded', () => {
     roleSelect.addEventListener('change', updateRoleTitle);
     loginButton.addEventListener('click', handleLogin);
 
-    logoutButtonStudent.addEventListener('click', handleLogout);
-    logoutButtonTeacher.addEventListener('click', handleLogout);
-    logoutButtonHod.addEventListener('click', handleLogout);
-    logoutButtonDean.addEventListener('click', handleLogout);
+    logoutButtonStudent.addEventListener('click', showLogoutConfirmModal);
+    logoutButtonTeacher.addEventListener('click', showLogoutConfirmModal);
+    logoutButtonHod.addEventListener('click', showLogoutConfirmModal);
+    logoutButtonDean.addEventListener('click', showLogoutConfirmModal);
 
-    // Student Page Form Event Listeners
+    confirmLogoutYesButton.addEventListener('click', () => {
+        hideLogoutConfirmModal();
+        performLogout();
+    });
+
+    confirmLogoutNoButton.addEventListener('click', () => {
+        hideLogoutConfirmModal();
+    });
+
     studentIdInput.addEventListener('input', () => {
         const sId = studentIdInput.value.trim();
-        hideMessage(studentIdValidationMessage); // Always hide on new input
+        hideMessage(studentIdValidationMessage);
 
         if (sId.length === 11 && /^\d+$/.test(sId)) {
             studentIdDisplay.innerHTML = `Your Student ID is: <strong>${sId}</strong>`;
             studentIdDisplay.classList.remove('hidden');
-            currentStudentId = sId; // Set currentStudentId only when valid
-            displayStudentLeaveHistory(sId); // Trigger history display when valid student ID is typed/changed
+            currentStudentId = sId;
+            displayStudentLeaveHistory(sId);
         } else {
             studentIdDisplay.classList.add('hidden');
-            // Show validation message if not 11 digits or not numeric
             if (sId.length > 0 && (sId.length !== 11 || !/^\d+$/.test(sId))) {
                 showMessage(studentIdValidationMessage, "Student ID must be exactly 11 digits (numbers only).", "error");
             } else {
                 hideMessage(studentIdValidationMessage);
             }
-            // Hide history and pass if ID is empty or invalid
             leaveHistoryContainer.classList.add('hidden');
             gatePassSection.classList.add('hidden');
             noRequestsMessage.classList.add('hidden');
             noActivePassMessage.classList.add('hidden');
-            studentIdCheckMessage.classList.remove('hidden'); // Show initial prompt
-            currentStudentId = null; // Clear currentStudentId if invalid
+            studentIdCheckMessage.classList.remove('hidden');
+            currentStudentId = null;
+            hideMessage(qrDownloadWarning); // NEW: Hide warning if student ID is invalid/empty
         }
     });
-    studentYearInput.addEventListener('input', validateStudentYear);
+    studentYearInput.addEventListener('change', validateStudentYear);
     studentAttendanceInput.addEventListener('input', updateAttendanceDisplay);
+    parentEmailInput.addEventListener('input', validateParentEmail);
+    parentContactInput.addEventListener('input', validateParentContact);
+
     authLeaveCheckbox.addEventListener('change', validateLeaveType);
     specLeaveCheckbox.addEventListener('change', validateLeaveType);
     leaveReasonTextarea.addEventListener('input', updateReasonStatus);
     studentBranchSelect.addEventListener('change', populateBatches);
     studentBatchSelect.addEventListener('change', updateBatchDisplay);
-    studentBatchSelect.addEventListener('change', validateMentor); // Re-validate mentor when batch changes
+    studentBatchSelect.addEventListener('change', validateMentor);
     studentMentorSelect.addEventListener('change', validateMentor);
     startDateInput.addEventListener('change', updateDateRange);
     endDateInput.addEventListener('change', updateDateRange);
     submitLeaveRequestButton.addEventListener('click', handleSubmitLeaveRequest);
 
-    updateRoleTitle(); // Set initial title based on default select value
-    navigateTo('login-section'); // Ensure login section is visible on load
+    updateRoleTitle();
+    navigateTo('login-section');
 });
