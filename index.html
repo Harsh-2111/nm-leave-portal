@@ -13,7 +13,7 @@
     <div id="app-container" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
         <div id="login-section" class="text-center">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">Login to Your Portal</h1>
-
+            
             <div class="mb-4">
                 <label for="role-select" class="block text-gray-700 text-sm font-medium mb-2">Select Role:</label>
                 <select id="role-select" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -57,8 +57,15 @@
             </div>
 
             <div class="mb-4">
-                <label for="student-year" class="block text-gray-700 text-sm font-medium mb-2">Which year are you in (e.g., 1, 2, 3, 4)?</label>
-                <input type="text" id="student-year" placeholder="Year" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="student-year" class="block text-gray-700 text-sm font-medium mb-2">Which year are you in?</label>
+                <select id="student-year" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select Year</option>
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                    <option value="5th Year">5th Year</option>
+                </select>
                 <p id="year-validation-message" class="text-sm text-red-600 mt-2 hidden"></p>
             </div>
 
@@ -69,10 +76,21 @@
                 <p id="attendance-warning" class="text-sm text-orange-600 mt-2 hidden">Your attendance is below 80%. You might need to talk with your Mentor about this.</p>
             </div>
 
+            <!-- MODIFICATION START: Parent's Email ID -->
             <div class="mb-4">
-                <label for="student-email" class="block text-gray-700 text-sm font-medium mb-2">Your Email ID:</label>
-                <input type="email" id="student-email" placeholder="youremail@example.com" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="parent-email" class="block text-gray-700 text-sm font-medium mb-2">Parent's Email ID:</label>
+                <input type="email" id="parent-email" placeholder="parent@example.com" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p id="parent-email-validation-message" class="text-sm text-red-600 mt-2 hidden"></p>
             </div>
+            <!-- MODIFICATION END: Parent's Email ID -->
+
+            <!-- NEW ADDITION: Parent's Contact Number -->
+            <div class="mb-4">
+                <label for="parent-contact" class="block text-gray-700 text-sm font-medium mb-2">Parent's Contact Number (10 digits):</label>
+                <input type="tel" id="parent-contact" placeholder="e.g., 9876543210" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" maxlength="10" pattern="[0-9]{10}">
+                <p id="parent-contact-validation-message" class="text-sm text-red-600 mt-2 hidden"></p>
+            </div>
+            <!-- END NEW ADDITION: Parent's Contact Number -->
 
             <div class="flex gap-4 mb-4">
                 <div class="flex items-center">
@@ -185,6 +203,10 @@
                 <p id="gate-pass-message" class="text-green-700 mb-4"></p>
                 <div id="qr-code-display" class="flex justify-center mb-4">
                     </div>
+                <!-- NEW ADDITION: QR Download Warning -->
+                <p id="qr-download-warning" class="text-sm text-orange-600 text-center mb-4 hidden">
+                    DOWNLOAD YOUR QR CODE ON DEVICE ONCE IT IS SEEN, IT MAY DISAPPEAR.
+                </p>
                 <button id="download-qr-button" class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md">Download Your Gate Pass QR Code</button>
                 <p id="qr-error-message" class="text-sm text-red-600 mt-2 hidden"></p>
             </div>
@@ -295,6 +317,17 @@
                 <p id="no-reviewed-dean-requests" class="text-center text-gray-500 mt-4 hidden">No approved or rejected leave requests found for you yet.</p>
             </div>
             <button id="logout-button-dean" class="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition duration-300 shadow-md">Logout</button>
+        </div>
+    </div>
+
+    <!-- Custom Logout Confirmation Modal -->
+    <div id="logout-confirm-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full">
+            <p class="text-lg font-semibold text-gray-800 mb-4">Do you want to log out?</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-logout-yes" class="bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700 transition duration-300">Yes</button>
+                <button id="confirm-logout-no" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-400 transition duration-300">No</button>
+            </div>
         </div>
     </div>
 
